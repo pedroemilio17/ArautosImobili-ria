@@ -67,13 +67,7 @@ function SidebarFooter() {
 function SidebarBrand() {
   return (
     <div className="flex items-center gap-2 mb-8">
-      <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-        <span className="text-primary-foreground font-black text-sm">E</span>
-      </div>
-      <div className="font-black text-lg tracking-tight">ECO</div>
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground ml-1">
-        leads
-      </div>
+      <img src="/ARAUTOSIMOB.jpg" alt="Arautos Imobiliária" className="h-8 w-auto rounded-md object-contain" />
     </div>
   );
 }
@@ -92,10 +86,7 @@ export function AppShell() {
       {/* Mobile top bar */}
       <header className="md:hidden sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background px-4 h-14">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-black text-xs">E</span>
-          </div>
-          <span className="font-black tracking-tight">ECO</span>
+          <img src="/ARAUTOSIMOB.jpg" alt="Arautos Imobiliária" className="h-7 w-auto rounded-md object-contain" />
         </div>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>

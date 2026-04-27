@@ -39,10 +39,7 @@ export default function LoginPage() {
     <div className="min-h-screen grid md:grid-cols-2 bg-background">
       <div className="hidden md:flex flex-col justify-between p-10 bg-primary text-primary-foreground">
         <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-md bg-primary-foreground flex items-center justify-center">
-            <span className="text-primary font-black">E</span>
-          </div>
-          <span className="font-black text-lg tracking-tight">ECO</span>
+          <img src="/ARAUTOSIMOB.jpg" alt="Arautos Imobiliária" className="h-12 w-auto rounded-md object-contain" />
         </div>
         <div>
           <h1 className="text-5xl font-black tracking-tight leading-[1.05]">
