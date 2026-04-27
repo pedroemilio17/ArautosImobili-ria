@@ -44,7 +44,7 @@ export default function PipelinePage() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Pipeline · ECO Leads";
+    document.title = "Pipeline · Arautos Imobiliária";
   }, []);
 
   const sensors = useSensors(

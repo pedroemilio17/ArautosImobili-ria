@@ -66,7 +66,7 @@ export default function FollowupsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Follow-ups · ECO Leads";
+    document.title = "Follow-ups · Arautos Imobiliária";
   }, []);
 
   const { atrasados, hoje, proximos } = useMemo(() => bucketize(leads), [leads]);

@@ -65,7 +65,7 @@ export default function LeadsPage() {
   const mark = useMarkContacted();
 
   useEffect(() => {
-    document.title = "Leads · ECO Leads";
+    document.title = "Leads · Arautos Imobiliária";
   }, []);
 
   const etapas = useMemo(() => {

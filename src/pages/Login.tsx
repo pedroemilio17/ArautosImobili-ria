@@ -16,7 +16,7 @@ export default function LoginPage() {
   const loc = useLocation() as { state?: { from?: string } };
 
   useEffect(() => {
-    document.title = "Entrar · ECO Leads";
+    document.title = "Entrar · Arautos Imobiliária";
   }, []);
 
   if (!loading && session) {
@@ -51,7 +51,7 @@ export default function LoginPage() {
           </p>
         </div>
         <div className="text-xs text-primary-foreground/50">
-          © {new Date().getFullYear()} ECO Leads
+          © {new Date().getFullYear()} Arautos Imobiliária
         </div>
       </div>
 

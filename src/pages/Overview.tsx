@@ -131,7 +131,7 @@ export default function OverviewPage() {
   const { data: leads = [], isLoading } = useLeads();
 
   useEffect(() => {
-    document.title = "Visão geral · ECO Leads";
+    document.title = "Visão geral · Arautos Imobiliária";
   }, []);
 
   const counts = useMemo(() => statusCounts(leads), [leads]);
