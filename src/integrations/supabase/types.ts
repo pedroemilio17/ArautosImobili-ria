@@ -26,6 +26,9 @@ export type Database = {
           filhos_menores: string | null
           finalidade: string | null
           id: string
+          last_contacted_by: string | null
+          last_contacted_by_email: string | null
+          pipeline_status: string | null
           LEAD_RAW: string | null
           mora_aluguel: string | null
           nome: string | null
@@ -52,6 +55,9 @@ export type Database = {
           filhos_menores?: string | null
           finalidade?: string | null
           id?: string
+          last_contacted_by?: string | null
+          last_contacted_by_email?: string | null
+          pipeline_status?: string | null
           LEAD_RAW?: string | null
           mora_aluguel?: string | null
           nome?: string | null
@@ -78,6 +84,9 @@ export type Database = {
           filhos_menores?: string | null
           finalidade?: string | null
           id?: string
+          last_contacted_by?: string | null
+          last_contacted_by_email?: string | null
+          pipeline_status?: string | null
           LEAD_RAW?: string | null
           mora_aluguel?: string | null
           nome?: string | null

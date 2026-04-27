@@ -35,6 +35,7 @@ import { clean, isEmptyValue } from "@/lib/normalize";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
 
 function Field({ label, value }: { label: string; value: string | null | undefined }) {
   const v = clean(value);
@@ -62,6 +63,7 @@ export function LeadDrawer({
   const { data: lead, isLoading } = useLead(leadId ?? undefined);
   const update = useUpdateLeadFields();
   const mark = useMarkContacted();
+  const { user } = useAuth();
 
   const [classificacao, setClassificacao] = useState("");
   const [proximoPasso, setProximoPasso] = useState("");
@@ -123,7 +125,12 @@ export function LeadDrawer({
                   className="h-8 text-xs"
                   onClick={() =>
                     mark.mutate(
-                      { id: lead.id, tentativas_followup: lead.tentativas_followup },
+                      {
+                        id: lead.id,
+                        tentativas_followup: lead.tentativas_followup,
+                        userEmail: user?.email ?? undefined,
+                        userId: user?.id ?? undefined,
+                      },
                       {
                         onSuccess: () => toast({ title: "Marcado como contatado" }),
                       },
@@ -144,6 +151,11 @@ export function LeadDrawer({
                   }
                 />
               </div>
+              {lead.last_contacted_by_email && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  Último contato por: <span className="font-medium text-foreground">{lead.last_contacted_by_email}</span>
+                </div>
+              )}
             </SheetHeader>
 
             <div className="mt-6 space-y-6">

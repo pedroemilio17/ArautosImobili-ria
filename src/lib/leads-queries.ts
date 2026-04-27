@@ -3,6 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { clean } from "./normalize";
 import { getContactStatus, type ContactStatus } from "./contactStatus";
 
+export type PipelineStatus = "demanda" | "em_atendimento" | "suspenso";
+
+export const PIPELINE_STATUSES: PipelineStatus[] = [
+  "demanda",
+  "em_atendimento",
+  "suspenso",
+];
+
+export const PIPELINE_META: Record<PipelineStatus, { label: string; color: string }> = {
+  demanda: { label: "Demanda", color: "hsl(40 85% 48%)" },
+  em_atendimento: { label: "Em atendimento", color: "hsl(152 55% 34%)" },
+  suspenso: { label: "Suspenso", color: "hsl(28 8% 55%)" },
+};
+
 export interface LeadRow {
   id: string;
   whatsapp: string | null;
@@ -28,6 +42,9 @@ export interface LeadRow {
   proximo_contato: string | null;
   tentativas_followup: number | null;
   LEAD_RAW: string | null;
+  last_contacted_by: string | null;
+  last_contacted_by_email: string | null;
+  pipeline_status: string | null;
 }
 
 export interface NormalizedLead extends LeadRow {
@@ -35,15 +52,20 @@ export interface NormalizedLead extends LeadRow {
   nomeNorm: string;
   classificacaoNorm: string;
   etapaNorm: string;
+  pipelineStatus: PipelineStatus;
 }
 
 function normalizeLead(row: LeadRow): NormalizedLead {
+  const ps = (row.pipeline_status ?? "demanda").toLowerCase();
   return {
     ...row,
     nomeNorm: clean(row.nome),
     classificacaoNorm: clean(row.classificacao).toUpperCase(),
     etapaNorm: clean(row.etapa_que_parou).toLowerCase(),
     contactStatus: getContactStatus(row),
+    pipelineStatus: PIPELINE_STATUSES.includes(ps as PipelineStatus)
+      ? (ps as PipelineStatus)
+      : "demanda",
   };
 }
 
@@ -82,16 +104,39 @@ export function useLead(id: string | undefined) {
 export function useMarkContacted() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (lead: { id: string; tentativas_followup: number | null }) => {
+    mutationFn: async (lead: {
+      id: string;
+      tentativas_followup: number | null;
+      userEmail?: string;
+      userId?: string;
+    }) => {
       const next = (lead.tentativas_followup ?? 0) + 1;
+
+      // Try with tracking fields first; fall back to core-only if columns don't exist yet
+      const fullPatch: Record<string, unknown> = {
+        tentativas_followup: next,
+        updated_at: new Date().toISOString(),
+      };
+      if (lead.userId) fullPatch.last_contacted_by = lead.userId;
+      if (lead.userEmail) fullPatch.last_contacted_by_email = lead.userEmail;
+
       const { error } = await supabase
         .from("leads")
-        .update({
-          tentativas_followup: next,
-          updated_at: new Date().toISOString(),
-        })
+        .update(fullPatch)
         .eq("id", lead.id);
-      if (error) throw error;
+
+      if (error) {
+        // Fallback: update only core fields if new columns don't exist
+        const { error: fallbackError } = await supabase
+          .from("leads")
+          .update({
+            tentativas_followup: next,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", lead.id);
+        if (fallbackError) throw fallbackError;
+      }
+
       return next;
     },
     onSuccess: () => {
@@ -143,6 +188,43 @@ export function useUpdateStage() {
           prev.map((l) =>
             l.id === id
               ? { ...l, etapa_que_parou: etapa, etapaNorm: etapa.toLowerCase() }
+              : l,
+          ),
+        );
+      }
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(LEADS_QUERY_KEY, ctx.prev);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+    },
+  });
+}
+
+export function useUpdatePipelineStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: PipelineStatus }) => {
+      const { error } = await supabase
+        .from("leads")
+        .update({
+          pipeline_status: status,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onMutate: async ({ id, status }) => {
+      await qc.cancelQueries({ queryKey: LEADS_QUERY_KEY });
+      const prev = qc.getQueryData<NormalizedLead[]>(LEADS_QUERY_KEY);
+      if (prev) {
+        qc.setQueryData<NormalizedLead[]>(
+          LEADS_QUERY_KEY,
+          prev.map((l) =>
+            l.id === id
+              ? { ...l, pipeline_status: status, pipelineStatus: status }
               : l,
           ),
         );

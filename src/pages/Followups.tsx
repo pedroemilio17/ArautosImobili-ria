@@ -21,6 +21,7 @@ import { NextContactPopover } from "@/components/leads/NextContactPopover";
 import { LeadDrawer } from "@/components/leads/LeadDrawer";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
 
 function bucketize(leads: NormalizedLead[]) {
   const now = Date.now();
@@ -162,6 +163,7 @@ function Item({
   onOpen: () => void;
 }) {
   const mark = useMarkContacted();
+  const { user } = useAuth();
   const dt = new Date(lead.proximo_contato!);
   const overdue = variant === "late";
   const today = isToday(dt);
@@ -191,6 +193,11 @@ function Item({
           <span className="mx-2">·</span>
           {lead.tentativas_followup ?? 0}x contatado
         </div>
+        {lead.last_contacted_by_email && (
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            Último por: {lead.last_contacted_by_email}
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <WhatsAppButton whatsapp={lead.whatsapp} />
@@ -201,7 +208,12 @@ function Item({
           disabled={mark.isPending}
           onClick={() =>
             mark.mutate(
-              { id: lead.id, tentativas_followup: lead.tentativas_followup },
+              {
+                id: lead.id,
+                tentativas_followup: lead.tentativas_followup,
+                userEmail: user?.email ?? undefined,
+                userId: user?.id ?? undefined,
+              },
               {
                 onSuccess: () =>
                   toast({ title: "Contatei registrado", description: lead.nomeNorm }),
