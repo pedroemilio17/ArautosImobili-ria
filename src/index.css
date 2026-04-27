@@ -8,35 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* Nike-minimal palette: branco predominante, preto forte, cinzas neutros */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 4%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 4%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 4%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 47%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 4%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
+
+    /* Status semânticos (contato com lead) */
+    --status-cold: 0 0% 4%;          /* não contatado - preto */
+    --status-cold-foreground: 0 0% 100%;
+    --status-cold-soft: 0 0% 92%;
+
+    --status-contacted: 142 71% 36%;  /* contatado - verde */
+    --status-contacted-foreground: 0 0% 100%;
+    --status-contacted-soft: 142 60% 94%;
+
+    --status-followup: 45 93% 47%;    /* em follow-up - amarelo */
+    --status-followup-foreground: 0 0% 4%;
+    --status-followup-soft: 45 100% 94%;
+
+    --status-late: 0 72% 47%;         /* atrasado - vermelho */
+    --status-late-foreground: 0 0% 100%;
+    --status-late-soft: 0 80% 96%;
+
+    --status-abandoned: 0 0% 60%;     /* abandonado - cinza */
+    --status-abandoned-foreground: 0 0% 100%;
+    --status-abandoned-soft: 0 0% 94%;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +122,18 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue",
+      Helvetica, Arial, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, h4 {
+    @apply tracking-tight;
+    font-weight: 700;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
   }
 }

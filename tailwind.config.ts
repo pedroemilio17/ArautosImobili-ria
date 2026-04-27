@@ -47,6 +47,33 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        status: {
+          cold: {
+            DEFAULT: "hsl(var(--status-cold))",
+            foreground: "hsl(var(--status-cold-foreground))",
+            soft: "hsl(var(--status-cold-soft))",
+          },
+          contacted: {
+            DEFAULT: "hsl(var(--status-contacted))",
+            foreground: "hsl(var(--status-contacted-foreground))",
+            soft: "hsl(var(--status-contacted-soft))",
+          },
+          followup: {
+            DEFAULT: "hsl(var(--status-followup))",
+            foreground: "hsl(var(--status-followup-foreground))",
+            soft: "hsl(var(--status-followup-soft))",
+          },
+          late: {
+            DEFAULT: "hsl(var(--status-late))",
+            foreground: "hsl(var(--status-late-foreground))",
+            soft: "hsl(var(--status-late-soft))",
+          },
+          abandoned: {
+            DEFAULT: "hsl(var(--status-abandoned))",
+            foreground: "hsl(var(--status-abandoned-foreground))",
+            soft: "hsl(var(--status-abandoned-soft))",
+          },
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
