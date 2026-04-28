@@ -12,11 +12,12 @@ import {
 } from "@dnd-kit/core";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Check, Loader2, MessageCircle } from "lucide-react";
+import { Check, Loader2, MessageCircle, X } from "lucide-react";
 import {
   useLeads,
   useUpdatePipelineStatus,
   useMarkContacted,
+  useResetContacted,
   PIPELINE_STATUSES,
   PIPELINE_META,
   type NormalizedLead,
@@ -202,6 +203,7 @@ function PipelineCard({
   onOpen?: () => void;
 }) {
   const mark = useMarkContacted();
+  const reset = useResetContacted();
   const { user } = useAuth();
   const contacted = (lead.tentativas_followup ?? 0) > 0;
 
@@ -260,29 +262,67 @@ function PipelineCard({
         onPointerDown={(e) => e.stopPropagation()}
       >
         <WhatsAppButton whatsapp={lead.whatsapp} size="icon" className="h-7 w-7" />
-        <Button
-          size="sm"
-          variant={contacted ? "outline" : "default"}
-          className={cn(
-            "h-7 text-[11px] gap-1 flex-1",
-            contacted && "border-status-contacted/40 text-status-contacted",
-          )}
-          disabled={mark.isPending}
-          onClick={() =>
-            mark.mutate(
-              {
-                id: lead.id,
-                tentativas_followup: lead.tentativas_followup,
-                userEmail: user?.email ?? undefined,
-                userId: user?.id ?? undefined,
-              },
-              { onSuccess: () => toast({ title: "✓ Marcado como contatado" }) },
-            )
-          }
-        >
-          <Check className="h-3 w-3" />
-          {contacted ? `${lead.tentativas_followup}x` : "Contatei"}
-        </Button>
+        {contacted ? (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-[11px] gap-1 flex-1 border-status-contacted/40 text-status-contacted"
+              disabled={mark.isPending}
+              onClick={() =>
+                mark.mutate(
+                  {
+                    id: lead.id,
+                    nome: lead.nomeNorm,
+                    tentativas_followup: lead.tentativas_followup,
+                    userEmail: user?.email ?? undefined,
+                    userId: user?.id ?? undefined,
+                  },
+                  { onSuccess: () => toast({ title: "✓ Contatei novamente · Follow-up em 3 dias" }) },
+                )
+              }
+            >
+              <Check className="h-3 w-3" />
+              {lead.tentativas_followup}x
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
+              disabled={reset.isPending}
+              title="Desmarcar contato"
+              onClick={() =>
+                reset.mutate(lead.id, {
+                  onSuccess: () => toast({ title: "Contato desmarcado" }),
+                })
+              }
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </>
+        ) : (
+          <Button
+            size="sm"
+            variant="default"
+            className="h-7 text-[11px] gap-1 flex-1"
+            disabled={mark.isPending}
+            onClick={() =>
+              mark.mutate(
+                {
+                  id: lead.id,
+                  nome: lead.nomeNorm,
+                  tentativas_followup: lead.tentativas_followup,
+                  userEmail: user?.email ?? undefined,
+                  userId: user?.id ?? undefined,
+                },
+                { onSuccess: () => toast({ title: "✓ Marcado · Follow-up agendado em 3 dias" }) },
+              )
+            }
+          >
+            <Check className="h-3 w-3" />
+            Contatei
+          </Button>
+        )}
       </div>
     </div>
   );

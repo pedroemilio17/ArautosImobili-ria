@@ -7,10 +7,11 @@ import {
   startOfDay,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import {
   useLeads,
   useMarkContacted,
+  useResetContacted,
   type NormalizedLead,
 } from "@/lib/leads-queries";
 import { Button } from "@/components/ui/button";
@@ -163,10 +164,12 @@ function Item({
   onOpen: () => void;
 }) {
   const mark = useMarkContacted();
+  const reset = useResetContacted();
   const { user } = useAuth();
   const dt = new Date(lead.proximo_contato!);
   const overdue = variant === "late";
   const today = isToday(dt);
+  const contacted = (lead.tentativas_followup ?? 0) > 0;
 
   return (
     <li
@@ -204,26 +207,40 @@ function Item({
         <NextContactPopover leadId={lead.id} current={lead.proximo_contato} />
         <Button
           size="sm"
-          className="h-8 text-xs gap-1.5"
+          variant={contacted ? "outline" : "default"}
+          className={cn("h-8 text-xs gap-1.5", contacted && "border-status-contacted/40 text-status-contacted")}
           disabled={mark.isPending}
           onClick={() =>
             mark.mutate(
               {
                 id: lead.id,
+                nome: lead.nomeNorm,
                 tentativas_followup: lead.tentativas_followup,
                 userEmail: user?.email ?? undefined,
                 userId: user?.id ?? undefined,
               },
               {
                 onSuccess: () =>
-                  toast({ title: "Contatei registrado", description: lead.nomeNorm }),
+                  toast({ title: "✓ Contatei · Follow-up em 3 dias", description: lead.nomeNorm }),
               },
             )
           }
         >
           <Check className="h-3.5 w-3.5" />
-          Contatei
+          {contacted ? `${lead.tentativas_followup}x` : "Contatei"}
         </Button>
+        {contacted && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-destructive hover:bg-destructive/10"
+            disabled={reset.isPending}
+            title="Desmarcar contato"
+            onClick={() => reset.mutate(lead.id, { onSuccess: () => toast({ title: "Contato desmarcado" }) })}
+          >
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
     </li>
   );

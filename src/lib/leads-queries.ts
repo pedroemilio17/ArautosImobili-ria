@@ -106,15 +106,18 @@ export function useMarkContacted() {
   return useMutation({
     mutationFn: async (lead: {
       id: string;
+      nome: string;
       tentativas_followup: number | null;
       userEmail?: string;
       userId?: string;
     }) => {
       const next = (lead.tentativas_followup ?? 0) + 1;
+      const followUpDate = new Date();
+      followUpDate.setDate(followUpDate.getDate() + 3);
 
-      // Try with tracking fields first; fall back to core-only if columns don't exist yet
       const fullPatch: Record<string, unknown> = {
         tentativas_followup: next,
+        proximo_contato: followUpDate.toISOString(),
         updated_at: new Date().toISOString(),
       };
       if (lead.userId) fullPatch.last_contacted_by = lead.userId;
@@ -126,16 +129,25 @@ export function useMarkContacted() {
         .eq("id", lead.id);
 
       if (error) {
-        // Fallback: update only core fields if new columns don't exist
+        // Fallback: core fields only
         const { error: fallbackError } = await supabase
           .from("leads")
           .update({
             tentativas_followup: next,
+            proximo_contato: followUpDate.toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq("id", lead.id);
         if (fallbackError) throw fallbackError;
       }
+
+      // Notify via Edge Function (fire-and-forget)
+      sendNotification({
+        type: "followup_scheduled",
+        leadName: lead.nome,
+        by: lead.userEmail,
+        followUpDate: followUpDate.toISOString(),
+      });
 
       return next;
     },
@@ -144,6 +156,44 @@ export function useMarkContacted() {
       qc.invalidateQueries({ queryKey: ["lead"] });
     },
   });
+}
+
+export function useResetContacted() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (leadId: string) => {
+      const patch: Record<string, unknown> = {
+        tentativas_followup: 0,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from("leads")
+        .update(patch)
+        .eq("id", leadId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      qc.invalidateQueries({ queryKey: ["lead"] });
+    },
+  });
+}
+
+// Fire-and-forget notification to Supabase Edge Function
+async function sendNotification(payload: {
+  type: "new_lead" | "followup_scheduled";
+  leadName?: string;
+  by?: string;
+  followUpDate?: string;
+}) {
+  try {
+    await supabase.functions.invoke("notify-email", { body: payload });
+  } catch {
+    // Notifications are non-blocking — don't break the UI
+    console.warn("Email notification failed (edge function may not be deployed)");
+  }
 }
 
 export function useSetNextContact() {

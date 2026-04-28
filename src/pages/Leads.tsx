@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Loader2, MoreHorizontal, Search, Check } from "lucide-react";
+import { Loader2, MoreHorizontal, Search, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLeads, useMarkContacted, type NormalizedLead } from "@/lib/leads-queries";
+import { useLeads, useMarkContacted, useResetContacted, type NormalizedLead } from "@/lib/leads-queries";
 import {
   CONTACT_STATUSES,
   CONTACT_STATUS_META,
@@ -64,6 +64,7 @@ export default function LeadsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const mark = useMarkContacted();
+  const reset = useResetContacted();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -270,39 +271,55 @@ export default function LeadsPage() {
                   {l.tentativas_followup ?? 0}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    size="sm"
-                    variant={l.contactStatus === "CONTATADO" ? "outline" : "default"}
-                    className="h-8 text-xs gap-1.5 w-full"
-                    disabled={mark.isPending}
-                    onClick={() =>
-                      mark.mutate(
-                        {
-                          id: l.id,
-                          tentativas_followup: l.tentativas_followup,
-                          userEmail: user?.email ?? undefined,
-                          userId: user?.id ?? undefined,
-                        },
-                        { onSuccess: () => toast({ title: "Marcado como contatado" }) },
-                      )
-                    }
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    Contatei
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant={(l.tentativas_followup ?? 0) > 0 ? "outline" : "default"}
+                      className={cn("h-8 text-xs gap-1.5 flex-1", (l.tentativas_followup ?? 0) > 0 && "border-status-contacted/40 text-status-contacted")}
+                      disabled={mark.isPending}
+                      onClick={() =>
+                        mark.mutate(
+                          {
+                            id: l.id,
+                            nome: l.nomeNorm,
+                            tentativas_followup: l.tentativas_followup,
+                            userEmail: user?.email ?? undefined,
+                            userId: user?.id ?? undefined,
+                          },
+                          { onSuccess: () => toast({ title: "✓ Contatei · Follow-up em 3 dias" }) },
+                        )
+                      }
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      {(l.tentativas_followup ?? 0) > 0 ? `${l.tentativas_followup}x` : "Contatei"}
+                    </Button>
+                    {(l.tentativas_followup ?? 0) > 0 && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        disabled={reset.isPending}
+                        title="Desmarcar contato"
+                        onClick={() => reset.mutate(l.id, { onSuccess: () => toast({ title: "Contato desmarcado" }) })}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
-                  <RowActions lead={l} onOpen={() => setOpenId(l.id)} markPending={mark.isPending} onMark={() =>
+                  <RowActions lead={l} onOpen={() => setOpenId(l.id)} markPending={mark.isPending} resetPending={reset.isPending} onMark={() =>
                     mark.mutate(
                       {
                         id: l.id,
+                        nome: l.nomeNorm,
                         tentativas_followup: l.tentativas_followup,
                         userEmail: user?.email ?? undefined,
                         userId: user?.id ?? undefined,
                       },
-                      { onSuccess: () => toast({ title: "Marcado como contatado" }) },
+                      { onSuccess: () => toast({ title: "✓ Contatei · Follow-up em 3 dias" }) },
                     )
-                  }/>
+                  } onReset={() => reset.mutate(l.id, { onSuccess: () => toast({ title: "Contato desmarcado" }) })} />
                 </TableCell>
               </TableRow>
             ))}
@@ -331,24 +348,37 @@ export default function LeadsPage() {
               <WhatsAppButton whatsapp={l.whatsapp} />
               <Button
                 size="sm"
-                variant={l.contactStatus === "CONTATADO" ? "outline" : "default"}
-                className="h-8 text-xs gap-1.5 flex-1"
+                variant={(l.tentativas_followup ?? 0) > 0 ? "outline" : "default"}
+                className={cn("h-8 text-xs gap-1.5 flex-1", (l.tentativas_followup ?? 0) > 0 && "border-status-contacted/40 text-status-contacted")}
                 disabled={mark.isPending}
                 onClick={() =>
                   mark.mutate(
                     {
                       id: l.id,
+                      nome: l.nomeNorm,
                       tentativas_followup: l.tentativas_followup,
                       userEmail: user?.email ?? undefined,
                       userId: user?.id ?? undefined,
                     },
-                    { onSuccess: () => toast({ title: "Marcado como contatado" }) },
+                    { onSuccess: () => toast({ title: "✓ Contatei · Follow-up em 3 dias" }) },
                   )
                 }
               >
                 <Check className="h-3.5 w-3.5" />
-                Contatei ({l.tentativas_followup ?? 0}x)
+                {(l.tentativas_followup ?? 0) > 0 ? `${l.tentativas_followup}x Contatei` : "Contatei"}
               </Button>
+              {(l.tentativas_followup ?? 0) > 0 && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                  disabled={reset.isPending}
+                  title="Desmarcar"
+                  onClick={() => reset.mutate(l.id, { onSuccess: () => toast({ title: "Contato desmarcado" }) })}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              )}
               <NextContactPopover leadId={l.id} current={l.proximo_contato} />
             </div>
             {l.last_contacted_by_email && (
@@ -407,13 +437,18 @@ function RowActions({
   lead,
   onOpen,
   onMark,
+  onReset,
   markPending,
+  resetPending,
 }: {
   lead: NormalizedLead;
   onOpen: () => void;
   onMark: () => void;
+  onReset: () => void;
   markPending: boolean;
+  resetPending: boolean;
 }) {
+  const contacted = (lead.tentativas_followup ?? 0) > 0;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -425,6 +460,11 @@ function RowActions({
         <DropdownMenuItem onClick={onMark} disabled={markPending}>
           Marcar como contatado
         </DropdownMenuItem>
+        {contacted && (
+          <DropdownMenuItem onClick={onReset} disabled={resetPending} className="text-destructive">
+            Desmarcar contato
+          </DropdownMenuItem>
+        )}
         <NextContactPopover
           leadId={lead.id}
           current={lead.proximo_contato}

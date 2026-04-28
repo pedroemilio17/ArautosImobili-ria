@@ -29,6 +29,7 @@ import { NextContactPopover } from "./NextContactPopover";
 import {
   useLead,
   useMarkContacted,
+  useResetContacted,
   useUpdateLeadFields,
 } from "@/lib/leads-queries";
 import { clean, isEmptyValue } from "@/lib/normalize";
@@ -63,6 +64,7 @@ export function LeadDrawer({
   const { data: lead, isLoading } = useLead(leadId ?? undefined);
   const update = useUpdateLeadFields();
   const mark = useMarkContacted();
+  const reset = useResetContacted();
   const { user } = useAuth();
 
   const [classificacao, setClassificacao] = useState("");
@@ -121,24 +123,37 @@ export function LeadDrawer({
                 <WhatsAppButton whatsapp={lead.whatsapp} showNumber />
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="h-8 text-xs"
+                  variant={(lead.tentativas_followup ?? 0) > 0 ? "outline" : "default"}
+                  className="h-8 text-xs gap-1.5"
+                  disabled={mark.isPending}
                   onClick={() =>
                     mark.mutate(
                       {
                         id: lead.id,
+                        nome: lead.nomeNorm,
                         tentativas_followup: lead.tentativas_followup,
                         userEmail: user?.email ?? undefined,
                         userId: user?.id ?? undefined,
                       },
                       {
-                        onSuccess: () => toast({ title: "Marcado como contatado" }),
+                        onSuccess: () => toast({ title: "✓ Contatei · Follow-up em 3 dias" }),
                       },
                     )
                   }
                 >
-                  Marcar contatado ({lead.tentativas_followup ?? 0}x)
+                  {(lead.tentativas_followup ?? 0) > 0 ? `Contatei (${lead.tentativas_followup}x)` : "Contatei"}
                 </Button>
+                {(lead.tentativas_followup ?? 0) > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                    disabled={reset.isPending}
+                    onClick={() => reset.mutate(lead.id, { onSuccess: () => toast({ title: "Contato desmarcado" }) })}
+                  >
+                    Desmarcar
+                  </Button>
+                )}
                 <NextContactPopover
                   leadId={lead.id}
                   current={lead.proximo_contato}
