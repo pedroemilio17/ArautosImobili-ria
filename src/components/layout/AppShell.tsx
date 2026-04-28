@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { NotificationToggle } from "./NotificationToggle";
 
 const NAV = [
   { to: "/", label: "Visão geral", icon: LayoutDashboard, end: true },
@@ -66,8 +67,9 @@ function SidebarFooter() {
 
 function SidebarBrand() {
   return (
-    <div className="flex items-center gap-2 mb-8">
+    <div className="flex items-center justify-between mb-8">
       <img src="/ARAUTOSIMOB.jpg" alt="Arautos Imobiliária" className="h-8 w-auto rounded-md object-contain" />
+      <NotificationToggle />
     </div>
   );
 }
@@ -88,6 +90,8 @@ export function AppShell() {
         <div className="flex items-center gap-2">
           <img src="/ARAUTOSIMOB.jpg" alt="Arautos Imobiliária" className="h-7 w-auto rounded-md object-contain" />
         </div>
+        <div className="flex items-center gap-1">
+          <NotificationToggle />
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -100,6 +104,7 @@ export function AppShell() {
             <SidebarFooter />
           </SheetContent>
         </Sheet>
+        </div>
       </header>
 
       <main className="md:pl-60">
