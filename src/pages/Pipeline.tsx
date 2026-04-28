@@ -50,6 +50,7 @@ export default function PipelinePage() {
     const map: Record<PipelineStatus, NormalizedLead[]> = {
       demanda: [],
       em_atendimento: [],
+      completo: [],
       suspenso: [],
     };
     leads.forEach((l) => {

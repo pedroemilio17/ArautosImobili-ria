@@ -3,17 +3,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { clean } from "./normalize";
 import { getContactStatus, type ContactStatus } from "./contactStatus";
 
-export type PipelineStatus = "demanda" | "em_atendimento" | "suspenso";
+export type PipelineStatus = "demanda" | "em_atendimento" | "completo" | "suspenso";
 
 export const PIPELINE_STATUSES: PipelineStatus[] = [
   "demanda",
   "em_atendimento",
+  "completo",
   "suspenso",
 ];
 
 export const PIPELINE_META: Record<PipelineStatus, { label: string; color: string }> = {
   demanda: { label: "Demanda", color: "hsl(40 85% 48%)" },
   em_atendimento: { label: "Em atendimento", color: "hsl(152 55% 34%)" },
+  completo: { label: "Completo", color: "hsl(210 100% 40%)" },
   suspenso: { label: "Suspenso", color: "hsl(28 8% 55%)" },
 };
 
