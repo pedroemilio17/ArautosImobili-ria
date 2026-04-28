@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { NotificationToggle } from "./NotificationToggle";
+import { FlowSwitcher } from "./FlowSwitcher";
 
 const NAV = [
   { to: "/", label: "Visão geral", icon: LayoutDashboard, end: true },
@@ -81,6 +82,7 @@ export function AppShell() {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-60 flex-col border-r border-border bg-background p-5">
         <SidebarBrand />
+        <FlowSwitcher />
         <NavList />
         <SidebarFooter />
       </aside>
@@ -100,6 +102,7 @@ export function AppShell() {
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-5 flex flex-col">
             <SidebarBrand />
+            <FlowSwitcher />
             <NavList onClick={() => setOpen(false)} />
             <SidebarFooter />
           </SheetContent>

@@ -23,6 +23,7 @@ import { LeadDrawer } from "@/components/leads/LeadDrawer";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
+import { useFlow } from "@/lib/flow-context";
 
 function bucketize(leads: NormalizedLead[]) {
   const now = Date.now();
@@ -66,12 +67,18 @@ function bucketize(leads: NormalizedLead[]) {
 export default function FollowupsPage() {
   const { data: leads = [], isLoading } = useLeads();
   const [openId, setOpenId] = useState<string | null>(null);
+  const { activeFlow } = useFlow();
 
   useEffect(() => {
     document.title = "Follow-ups · Arautos Imobiliária";
   }, []);
 
-  const { atrasados, hoje, proximos } = useMemo(() => bucketize(leads), [leads]);
+  const { atrasados, hoje, proximos } = useMemo(() => {
+    const flowFiltered = activeFlow === "ALL" 
+      ? leads 
+      : leads.filter(l => l.flow_type === activeFlow);
+    return bucketize(flowFiltered);
+  }, [leads, activeFlow]);
 
   return (
     <div className="space-y-8">

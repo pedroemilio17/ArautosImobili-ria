@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
+import { FlowProvider } from "@/lib/flow-context";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { AppShell } from "@/components/layout/AppShell";
 import OverviewPage from "./pages/Overview";
@@ -29,22 +30,24 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              element={
-                <ProtectedRoute>
-                  <AppShell />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/" element={<OverviewPage />} />
-              <Route path="/leads" element={<LeadsPage />} />
-              <Route path="/pipeline" element={<PipelinePage />} />
-              <Route path="/followups" element={<FollowupsPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <FlowProvider>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <AppShell />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/" element={<OverviewPage />} />
+                <Route path="/leads" element={<LeadsPage />} />
+                <Route path="/pipeline" element={<PipelinePage />} />
+                <Route path="/followups" element={<FollowupsPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </FlowProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

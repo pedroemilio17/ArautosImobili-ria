@@ -47,6 +47,7 @@ export interface LeadRow {
   last_contacted_by: string | null;
   last_contacted_by_email: string | null;
   pipeline_status: string | null;
+  flow_type: string | null;
 }
 
 export interface NormalizedLead extends LeadRow {

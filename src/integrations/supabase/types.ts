@@ -25,6 +25,7 @@ export type Database = {
           etapa_que_parou: string | null
           filhos_menores: string | null
           finalidade: string | null
+          flow_type: string | null
           id: string
           last_contacted_by: string | null
           last_contacted_by_email: string | null
@@ -54,6 +55,7 @@ export type Database = {
           etapa_que_parou?: string | null
           filhos_menores?: string | null
           finalidade?: string | null
+          flow_type?: string | null
           id?: string
           last_contacted_by?: string | null
           last_contacted_by_email?: string | null
@@ -83,6 +85,7 @@ export type Database = {
           etapa_que_parou?: string | null
           filhos_menores?: string | null
           finalidade?: string | null
+          flow_type?: string | null
           id?: string
           last_contacted_by?: string | null
           last_contacted_by_email?: string | null

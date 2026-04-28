@@ -41,6 +41,7 @@ import { LeadDrawer } from "@/components/leads/LeadDrawer";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
+import { useFlow } from "@/lib/flow-context";
 
 type StatusFilter = ContactStatus | "ALL";
 
@@ -66,6 +67,7 @@ export default function LeadsPage() {
   const mark = useMarkContacted();
   const reset = useResetContacted();
   const { user } = useAuth();
+  const { activeFlow } = useFlow();
 
   useEffect(() => {
     document.title = "Leads · Arautos Imobiliária";
@@ -94,7 +96,13 @@ export default function LeadsPage() {
     const since =
       period !== "all" ? Date.now() - parseInt(period) * 86400000 : 0;
     const q = search.trim().toLowerCase();
-    return leads.filter((l) => {
+    
+    // First, filter by flow
+    const flowFiltered = activeFlow === "ALL" 
+      ? leads 
+      : leads.filter(l => l.flow_type === activeFlow);
+      
+    return flowFiltered.filter((l) => {
       if (statusFilter !== "ALL" && l.contactStatus !== statusFilter) return false;
       if (classificacao !== "ALL" && l.classificacaoNorm !== classificacao) return false;
       if (etapa !== "ALL" && l.etapaNorm !== etapa) return false;
@@ -106,7 +114,7 @@ export default function LeadsPage() {
       }
       return true;
     });
-  }, [leads, statusFilter, classificacao, etapa, period, search]);
+  }, [leads, statusFilter, classificacao, etapa, period, search, activeFlow]);
 
   const updateStatusFilter = (v: StatusFilter) => {
     setStatusFilter(v);

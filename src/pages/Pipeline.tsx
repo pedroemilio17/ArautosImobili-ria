@@ -31,12 +31,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
+import { useFlow } from "@/lib/flow-context";
 
 export default function PipelinePage() {
   const { data: leads = [], isLoading } = useLeads();
   const updatePipeline = useUpdatePipelineStatus();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const { activeFlow } = useFlow();
 
   useEffect(() => {
     document.title = "Pipeline · Arautos Imobiliária";
@@ -53,11 +55,15 @@ export default function PipelinePage() {
       completo: [],
       suspenso: [],
     };
-    leads.forEach((l) => {
+    const flowFiltered = activeFlow === "ALL" 
+      ? leads 
+      : leads.filter(l => l.flow_type === activeFlow);
+      
+    flowFiltered.forEach((l) => {
       map[l.pipelineStatus].push(l);
     });
     return map;
-  }, [leads]);
+  }, [leads, activeFlow]);
 
   const activeLead = activeId ? leads.find((l) => l.id === activeId) : null;
 

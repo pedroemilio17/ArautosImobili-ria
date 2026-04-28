@@ -26,6 +26,7 @@ import { WhatsAppButton } from "@/components/leads/WhatsAppButton";
 import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow, isToday, startOfDay, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useFlow } from "@/lib/flow-context";
 
 function statusCounts(leads: NormalizedLead[]) {
   const counts: Record<ContactStatus, number> = {
@@ -129,17 +130,26 @@ function Kpi({
 
 export default function OverviewPage() {
   const { data: leads = [], isLoading } = useLeads();
+  const { activeFlow } = useFlow();
+
+  const flowFiltered = useMemo(() => {
+    return activeFlow === "ALL" 
+      ? leads 
+      : leads.filter(l => l.flow_type === activeFlow);
+  }, [leads, activeFlow]);
+
+  const pageTitle = `Visão geral${activeFlow === "ALL" ? "" : activeFlow === "eco" ? " — Econômico" : " — Concept"}`;
 
   useEffect(() => {
-    document.title = "Visão geral · Arautos Imobiliária";
-  }, []);
+    document.title = `${pageTitle} · Arautos Imobiliária`;
+  }, [pageTitle]);
 
-  const counts = useMemo(() => statusCounts(leads), [leads]);
-  const total = leads.length;
-  const quente = useMemo(() => quenteCount(leads), [leads]);
-  const stages = useMemo(() => stageData(leads), [leads]);
-  const daily = useMemo(() => dailyData(leads), [leads]);
-  const upcoming = useMemo(() => upcomingContacts(leads), [leads]);
+  const counts = useMemo(() => statusCounts(flowFiltered), [flowFiltered]);
+  const total = flowFiltered.length;
+  const quente = useMemo(() => quenteCount(flowFiltered), [flowFiltered]);
+  const stages = useMemo(() => stageData(flowFiltered), [flowFiltered]);
+  const daily = useMemo(() => dailyData(flowFiltered), [flowFiltered]);
+  const upcoming = useMemo(() => upcomingContacts(flowFiltered), [flowFiltered]);
 
   const pie = CONTACT_STATUSES.map((s) => ({
     name: CONTACT_STATUS_META[s].label,
@@ -152,7 +162,7 @@ export default function OverviewPage() {
     <div className="space-y-8">
       <header className="flex items-end justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">Visão geral</h1>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight">{pageTitle}</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Acompanhamento de contato com leads.
           </p>
