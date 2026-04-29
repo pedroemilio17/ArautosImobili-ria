@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       leads: {
         Row: {
+          agendamento: string | null
           classificacao: string | null
           compraria_esse_ano: string | null
           created_at: string | null
@@ -46,6 +47,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          agendamento?: string | null
           classificacao?: string | null
           compraria_esse_ano?: string | null
           created_at?: string | null
@@ -76,6 +78,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          agendamento?: string | null
           classificacao?: string | null
           compraria_esse_ano?: string | null
           created_at?: string | null
@@ -132,6 +135,7 @@ export type Database = {
     Views: {
       leads_dashboard: {
         Row: {
+          agendamento: string | null
           classificacao: string | null
           created_at: string | null
           etapa_que_parou: string | null
@@ -143,6 +147,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          agendamento?: string | null
           classificacao?: string | null
           created_at?: string | null
           etapa_que_parou?: string | null
@@ -154,6 +159,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          agendamento?: string | null
           classificacao?: string | null
           created_at?: string | null
           etapa_que_parou?: string | null

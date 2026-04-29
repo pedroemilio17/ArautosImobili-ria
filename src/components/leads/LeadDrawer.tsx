@@ -213,6 +213,7 @@ export function LeadDrawer({
                         : ""
                     }
                   />
+                  <Field label="Agendamento" value={lead.agendamento} />
                 </div>
               </Section>
 

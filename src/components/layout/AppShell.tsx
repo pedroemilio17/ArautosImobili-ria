@@ -4,6 +4,7 @@ import {
   Users,
   Columns3,
   CalendarClock,
+  CalendarDays,
   LogOut,
   Menu,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const NAV = [
   { to: "/leads", label: "Leads", icon: Users },
   { to: "/pipeline", label: "Pipeline", icon: Columns3 },
   { to: "/followups", label: "Follow-ups", icon: CalendarClock },
+  { to: "/agenda", label: "Agenda", icon: CalendarDays },
 ];
 
 function NavList({ onClick }: { onClick?: () => void }) {

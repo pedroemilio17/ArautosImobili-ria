@@ -11,6 +11,7 @@ import OverviewPage from "./pages/Overview";
 import LeadsPage from "./pages/Leads";
 import PipelinePage from "./pages/Pipeline";
 import FollowupsPage from "./pages/Followups";
+import AgendaPage from "./pages/Agenda";
 import LoginPage from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/leads" element={<LeadsPage />} />
                 <Route path="/pipeline" element={<PipelinePage />} />
                 <Route path="/followups" element={<FollowupsPage />} />
+                <Route path="/agenda" element={<AgendaPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
