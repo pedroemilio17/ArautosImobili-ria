@@ -13,16 +13,31 @@ import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 // Helper for parsing dates flexibly
 function parseDateFlexible(dateString: string | null): Date | null {
   if (!dateString) return null;
-  // Try parsing ISO or common format first
-  let parsed = parseISO(dateString);
+  const cleanDate = dateString.trim();
+
+  // Try specific formats FIRST, especially Brazilian formats (Day/Month/Year)
+  // This avoids `new Date("10/05/2026")` being parsed as October 5th.
+  const formats = [
+    "dd/MM/yyyy HH:mm",
+    "dd/MM/yyyy HH:mm:ss",
+    "dd/MM/yyyy",
+    "yyyy-MM-dd HH:mm",
+    "yyyy-MM-dd HH:mm:ss",
+    "yyyy-MM-dd",
+  ];
+
+  let parsed: Date | null = null;
+  for (const fmt of formats) {
+    parsed = parse(cleanDate, fmt, new Date());
+    if (isValid(parsed)) return parsed;
+  }
+
+  // Try parsing ISO next
+  parsed = parseISO(cleanDate);
   if (isValid(parsed)) return parsed;
 
-  // Try standard JS Date fallback
-  parsed = new Date(dateString);
-  if (isValid(parsed)) return parsed;
-
-  // Try custom aaaa-mm-dd hh:mm format (sometimes people use space instead of T)
-  parsed = parse(dateString, "yyyy-MM-dd HH:mm", new Date());
+  // Last fallback: standard JS Date parsing
+  parsed = new Date(cleanDate);
   if (isValid(parsed)) return parsed;
 
   return null;
